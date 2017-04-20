@@ -3,6 +3,7 @@ package com.mengasis.manuel.exampleandroidrealm.Services;
 import com.mengasis.manuel.exampleandroidrealm.Models.Hero;
 
 import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 /**
@@ -46,5 +47,32 @@ public class HeroService {
         RealmResults<Hero> results = realm.where(Hero.class).findAll();
 
         return results.toArray(new Hero[results.size()]);
+    }
+
+    public Hero getHero(int id){
+        Hero hero = realm.where(Hero.class).equalTo("id",id).findFirst();
+
+        return hero;
+    }
+
+    //UPDATE
+
+    public void updateHero(Hero hero, String name){
+
+        realm.beginTransaction();
+        hero.setName(name);
+        realm.commitTransaction();
+
+    }
+
+
+    //DELETE
+    public void deleteHero(int id){
+
+        Hero hero = getHero(id);
+
+        realm.beginTransaction();
+        hero.deleteFromRealm();
+        realm.commitTransaction();
     }
 }
