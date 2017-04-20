@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
 
         heroService.createHero("Nightwing");
 
+        exportDatabase(realmConfiguration);
+
         Hero[] heroes = heroService.getHeroes();
 
         for (int i=0; i < heroes.length; i++){
@@ -42,4 +44,36 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void exportDatabase(RealmConfiguration realmConfiguration) {
+
+        // init realm
+        Realm realm = Realm.getInstance(realmConfiguration);
+
+        File exportRealmFile = null;
+        try {
+            // get or create an "export.realm" file
+            exportRealmFile = new File(this.getExternalCacheDir(), "export.realm");
+
+            // if "export.realm" already exists, delete
+            exportRealmFile.delete();
+
+            // copy current realm to "export.realm"
+            realm.writeCopyTo(exportRealmFile);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        realm.close();
+
+        // init email intent and add export.realm as attachment
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("plain/text");
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Backup");
+        intent.putExtra(Intent.EXTRA_TEXT, "Backup Realm");
+        Uri u = Uri.fromFile(exportRealmFile);
+        intent.putExtra(Intent.EXTRA_STREAM, u);
+
+        // start email intent
+        startActivity(Intent.createChooser(intent, "RealmBackup"));
+    }
 }
